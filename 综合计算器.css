@@ -1,0 +1,148 @@
+*{
+    margin: 0 auto;
+    padding: 0px;
+}
+
+.main{
+    position: relative;
+    top: 50px;
+    width: 330px;
+    height: 498px;
+    border: 3px solid rgb(228, 228, 228);
+    border-radius:10px;
+    overflow: hidden;
+}
+.xianshi{
+    width: 100%;
+    height: 135px;
+    float: left;
+    border-bottom:3px solid rgb(255, 192, 104); 
+    background: linear-gradient(180deg,rgba(207, 207, 207,0.6), rgba(255,255,255,0.4));
+
+}
+#zhuan,
+#jieguo{
+    width: 99.8%;
+    height: 69.5px;
+    font-size: 24px;
+    font-family: blod;
+    background: rgba(232, 244, 255, 0);
+    border: none;
+    outline: none;
+    float: left;
+    text-align: right;
+}
+.anjian{
+    width: 100%;
+    height: 360px;
+    float: left;
+}
+.anjian>div{
+    width: 100%;
+    height:60px;
+    float: left;
+}
+.anjian>div>button{
+    width: 25%;;
+    height: 100%;
+    float: left;
+    outline: none;
+}
+.anjian>:first-child>button{
+    width: 110px;
+    height: 100%;
+    float: left;
+}
+line { 
+    stroke: rgb(253, 184, 87); 
+    
+    stroke-width: .06; 
+}
+.t1{
+    position: absolute;
+    top: 295px;
+    left: 100px;
+    z-index: -1;
+    width: 280px;
+    height: 300px;
+}
+canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: -10;
+}
+
+.beijing{
+    position: absolute;
+    top: 0px;
+    width: 100%;
+    height: 100%;
+    z-index: -10;
+}
+
+.orange {
+	color: #fef4e9;
+	border: solid 1px #da7c0c;
+	background: #f78d1d;
+	background: -webkit-gradient(linear, left top, left bottom, from(#faa51a), to(#f47a20));
+	background: -moz-linear-gradient(top,  #faa51a,  #f47a20);
+	filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#faa51a', endColorstr='#f47a20');
+}
+.orange:hover {
+	background: #f47c20;
+	background: -webkit-gradient(linear, left top, left bottom, from(#f88e11), to(#f06015));
+	background: -moz-linear-gradient(top,  #f88e11,  #f06015);
+	filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#f88e11', endColorstr='#f06015');
+}
+.orange:active {
+	color: #fcd3a5;
+	background: -webkit-gradient(linear, left top, left bottom, from(#f47a20), to(#faa51a));
+	background: -moz-linear-gradient(top,  #f47a20,  #faa51a);
+	filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#f47a20', endColorstr='#faa51a');
+}
+
+
+.black {
+	color: #d7d7d7;
+	border: solid 1px #333;
+	background: #333;
+	background: -webkit-gradient(linear, left top, left bottom, from(#666), to(#000));
+	background: -moz-linear-gradient(top,  #666,  #000);
+	filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#666666', endColorstr='#000000');
+}
+.black:hover {
+	background: #000;
+	background: -webkit-gradient(linear, left top, left bottom, from(#444), to(#000));
+	background: -moz-linear-gradient(top,  #444,  #000);
+	filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#444444', endColorstr='#000000');
+}
+.black:active {
+	color: #666;
+	background: -webkit-gradient(linear, left top, left bottom, from(#000), to(#444));
+	background: -moz-linear-gradient(top,  #000,  #444);
+	filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#000000', endColorstr='#666666');
+}
+
+
+.shuru {
+	color: #606060;
+	border: solid 1px #b7b7b7;
+	background: #fff;
+	background: -webkit-gradient(linear, left top, left bottom, from(#fff), to(#ededed));
+	background: -moz-linear-gradient(top,  #fff,  #ededed);
+	filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff', endColorstr='#ededed');
+}
+.shuru:hover {
+	background: #ededed;
+	background: -webkit-gradient(linear, left top, left bottom, from(#fff), to(#dcdcdc));
+	background: -moz-linear-gradient(top,  #fff,  #dcdcdc);
+	filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff', endColorstr='#dcdcdc');
+}
+.shuru:active {
+	color: #999;
+	background: -webkit-gradient(linear, left top, left bottom, from(#ededed), to(#fff));
+	background: -moz-linear-gradient(top,  #ededed,  #fff);
+	filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#ededed', endColorstr='#ffffff');
+}
+

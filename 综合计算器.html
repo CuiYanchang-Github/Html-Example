@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>综合计算器</title>
+    <link rel="stylesheet" href="综合计算器.css">
+</head>
+<body>
+    <div class="all">
+
+        <div class="main">
+            <div class="xianshi">
+                <input type="text" disabled="disabled" id="zhuan">
+                <input type="text" disabled="disabled" id="jieguo">
+            </div>
+            <div class="anjian">
+
+                <div class="aj-1">
+                    <button id="zhongzhuan" class="shuru" onclick="zhuan(this);">中缀转后缀</button>
+                    <button id="zhongji" class="shuru" onclick="dengyu(this);">中缀计算</button>
+                    <button id="houji" class="shuru" onclick="houji(this);">后缀计算</button>
+                </div>
+                <div class="aj-1">
+                    <button id="zuokuo" class="shuru" onclick="shuru(this);">(</button>
+                    <button id="youkuo" class="shuru" onclick="shuru(this);">)</button>
+                    <button id="qingling" class="shuru" onclick="qingchu(this);">CE</button>
+                    <button id="chu" class="orange" onclick="shuru(this);">/</button>
+                </div>
+                <div class="aj-1">
+                    <button class="shuru" onclick="shuru(this);">7</button>
+                    <button class="shuru" onclick="shuru(this);">8</button>
+                    <button class="shuru" onclick="shuru(this);">9</button>
+                    <button id="cheng" class="orange" onclick="shuru(this);">*</button>
+                </div>
+                <div class="aj-1">
+                    <button class="shuru" onclick="shuru(this);">4</button>
+                    <button class="shuru" onclick="shuru(this);">5</button>
+                    <button class="shuru" onclick="shuru(this);">6</button>
+                    <button id="jia" class="orange" onclick="shuru(this);">+</button>
+                </div>
+                <div class="aj-1">
+                    <button class="shuru" onclick="shuru(this);">1</button>
+                    <button class="shuru" onclick="shuru(this);">2</button>
+                    <button class="shuru" onclick="shuru(this);">3</button>
+                    <button id="jian" class="orange" onclick="shuru(this);">-</button>
+                </div>
+                <div class="aj-1">
+                    <button class="shuru" onclick="shuru(this);">.</button>
+                    <button class="shuru" onclick="shuru(this);">0</button>
+                    <button id="tuige" class="shuru" onclick="tuige(this);">DEL</button>
+
+                    <button id="dengyu" class="black" onclick="dengyu(this);">=</button>
+                </div>
+
+            </div>
+        </div>
+
+        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1500" height="320" class="t1">
+            <defs id="defs">
+                <g id="stem">
+                    <line x1="0" y1="0" x2="0" y2="-1" /> </g>
+            </defs>
+            <g transform="translate(130, 320) scale(100)" class="t-1">
+                <use id="15deg" xlink:href="" />
+            </g>
+            <g transform="translate(440, 320) scale(95)">
+                <use id="25deg" xlink:href="" />
+            </g>
+            <g transform="translate(800, 320) scale(90)">
+                <use id="35deg" xlink:href="" />
+            </g>
+
+        </svg>
+        <img src="../综合计算器/背景.jpg" alt="" class="beijing">
+        <canvas id="Mycanvas"></canvas>
+    </div>
+
+</body>
+<script src='jquery.js'></script>
+<script src="树.js"></script>
+<script src="动态粒子背景.js"></script>
+<script>
+    var cout = document.getElementById("jieguo");
+    var count = 0;
+    function shuru() {
+        let shuru = event.target;
+        console.log(shuru.innerText);
+        cout.value += shuru.innerText;
+        console.log(cout.value);
+        for (var i = 0; i < cout.value.length; i++) {
+            if (cout.value[i] == '0') {
+                if (cout.value[i - 1] == '/') {
+                    alert("输入错误，请重新输入！");
+                    tuige();
+                }
+            }
+            if (cout.value[i] == '.' || cout.value[i] == '+' || cout.value[i] == '-' || cout.value[i] == '*' || cout.value[i] == '/') {
+                if (cout.value[i - 1] == '.' || cout.value[i - 1] == '+' || cout.value[i - 1] == '-' || cout.value[i - 1] == '*' || cout.value[i - 1] == '/') {
+                    var temp = cout.value[i];
+                    tuige();
+                    tuige();
+                    cout.value += temp;
+                }
+            }
+        }
+        if (shuru.innerText == ')') {
+            var q = 0;
+            for (var i = 0; i < cout.value.length; i++) {
+                console.log(cout.value[i]);
+                if (cout.value[i] == '(') {
+                    q = 1;
+                }
+            }
+            if (q != 1) {
+                alert("输入错误请重新输入");
+                tuige();
+            }
+        }
+    }
+
+    function cha() {
+        var s = document.getElementById("jieguo").value;
+        var a = [];
+        a.push('#');
+        for (var i = 0; i < s.length; i++) {
+            if (s[i] == '(' || s[i] == '[' || s[i] == '{') {
+                a.push(s[i]);
+            }
+            else if (s[i] == ')') {
+                var b = a.pop();
+                if (b != '(') {
+                    alert("输入错误请重新输入");
+                    var temp = [];
+                    temp = s;
+                    qingchu();
+                    return;
+                }
+            }
+        }
+        if (a.pop() != '#') {
+            alert("输入错误请重新输入");
+            var temp = [];
+            temp = s;
+            qingchu();
+        }
+        else
+            return true;
+    }
+
+    function chuan() {
+        var a = "";
+        for (var i = 0; i < cout.value.length; i++) {
+            a += cout.value[i];
+        }
+        return a;
+    }
+
+    function tuige() {
+        var s = document.getElementById("jieguo").value;
+        console.log(s);
+        var a = [];
+        for (var i = 0; i < s.length; i++) {
+            a[i] = s[i];
+        }
+        cout.value = ' ';
+        a.pop();
+        console.log(a);
+        for (var i = 0; i < a.length; i++) {
+            cout.value += a[i];
+        }
+        document.getElementById("zhuan").value = " ";
+    }
+
+    function qingchu() {
+        var a = document.getElementById("jieguo").value;
+        console.log(a);
+        cout.value = null;
+        a = [];
+        console.log(a);
+        document.getElementById("zhuan").value = " ";
+    }
+    var sign = new Array();
+    //  +     -     *     /     (    )    #
+    sign[0] = ['1', '1', '-1', '-1', '-1', '1', '1'];// +
+    sign[1] = ['1', '1', '-1', '-1', '-1', '1', '1'];// -
+    sign[2] = ['1', '1', '1', '1', '-1', '1', '1'];// *
+    sign[3] = ['1', '1', '1', '1', '-1', '1', '1'];// /
+    sign[4] = ['-1', '-1', '-1', '-1', '-1', '0', ' '];// (
+    sign[5] = ['1', '1', '1', '1', ' ', '1', '1'];// )
+    sign[6] = ['-1', '-1', '-1', '-1', '-1', ' ', '0'];// #
+
+    function change(a, b) {
+        var bb = ['+', '-', '*', '/', '(', ')', '#'];
+        var before;
+        var after;
+        for (var j = 0; j < bb.length; j++) {
+            if (a == bb[j]) {
+                before = j;
+            }
+            if (b == bb[j]) {
+                after = j;
+            }
+        }
+        var zuhe = sign[before][after];
+        return zuhe;
+    }
+
+    function dengyu() {
+        cha();
+        var a = chuan();
+        a = a + "#";
+        console.log(a);
+        var b = [], c = [];
+        b.push("#");
+        var ffloat = "";
+        var tatum = 0;
+        for (var i = 0; i < a.length; i++) {
+            if (!isNaN(a[i]) || a[i] == '.') {
+                if (!isNaN(a[i + 1]) || a[i + 1] == '.' || tatum == 1) {
+                    ffloat = ffloat + a[i];
+                    tatum = 1;
+                    console.log(ffloat);
+                    if (isNaN(a[i + 1]) && a[i + 1] != '.') {
+                        c.push(parseFloat(ffloat));
+                        ffloat = "";
+                        tatum = 0;
+                    }
+                } else {
+                    c.push(a[i]);
+                }
+            }
+            else {
+                var x = b[b.length - 1];
+                var y = a[i];
+                if (y == "(") {
+                    b.push(y);
+                }
+                else if (y == ")") {
+                    while (b[b.length - 1] != "(") {
+                        var m = parseFloat(c.pop());
+                        var n = parseFloat(c.pop());
+                        var d = b.pop();
+                        switch (d) {
+                            case '+':
+                                c.push(m + n);
+                                break;
+                            case '-':
+                                c.push(n - m);
+                                break;
+                            case '*':
+                                c.push(m * n);
+                                break;
+                            case '/':
+                                c.push(n / m);
+                                break;
+                        }
+                    }
+                    b.pop();
+                }
+                else {
+                    var z = change(x, y);
+                    if (z == -1) {
+                        b.push(a[i]);
+                    }
+                    else if (z >= 0) {
+                        do {
+                            var m = parseFloat(c.pop());
+                            var n = parseFloat(c.pop());
+                            var d = b.pop();
+                            switch (d) {
+                                case '+':
+                                    c.push(m + n);
+                                    break;
+                                case '-':
+                                    c.push(n - m);
+                                    break;
+                                case '*':
+                                    c.push(m * n);
+                                    break;
+                                case '/':
+                                    c.push(n / m);
+                                    break;
+                            }
+                        } while (change(b[b.length - 1], y) > 0);
+                        b.push(y);
+                    }
+                }
+            }
+        }
+        console.log(c);
+        a = [];
+        a[0] = c[0];
+        document.getElementById("jieguo").value = c[0];
+    }
+
+    function zhuan() {
+        cha();
+        var a = chuan();
+        a = a + "#";
+        var b = [], c = [];
+        b.push("#");
+        var ffloat = "";
+        var tatum = 0;
+        for (var i = 0; i < a.length; i++) {
+            if (!isNaN(a[i]) || a[i] == '.') {
+                if (!isNaN(a[i + 1]) || a[i + 1] == '.' || tatum == 1) {
+                    ffloat = ffloat + a[i];
+                    tatum = 1;
+                    console.log(ffloat);
+                    if (isNaN(a[i + 1]) && a[i + 1] != '.') {
+                        c.push(parseFloat(ffloat));
+                        ffloat = "";
+                        tatum = 0;
+                    }
+                }
+                else {
+                    c.push(a[i]);
+                }
+            }
+            else {
+                var x = b[b.length - 1];
+                var y = a[i];
+                if (y == "(") {
+                    b.push(y);
+                }
+                else if (y == ")") {
+                    while (b[b.length - 1] != "(") {
+                        c.push(b.pop());
+                    }
+                    b.pop();
+                }
+                else {
+                    var z = change(x, y);
+                    // console.log(z);
+
+                    if (z == -1) {
+                        b.push(a[i]);
+                    }
+                    else if (z >= 0) {
+                        do {
+                            c.push(b.pop());
+                        } while (change(b[b.length - 1], y) > 0);
+                        b.push(y);
+                    }
+                }
+
+            }
+        }
+        document.getElementById("zhuan").value = c;
+        console.log(c);
+        return c;
+    }
+
+    function houji() {
+        cha();
+        var c = zhuan();
+        console.log(c);
+        document.getElementById("zhuan").value = c;
+        var shu = [];
+        var temp1 = [];
+        for (var i = 0; i < c.length; i++) {
+            if (c[i] != '+' && c[i] != '-' && c[i] != '*' && c[i] != '/') {
+                temp1.push(c[i]);
+                console.log(temp1);
+            }
+            else {
+                var a = parseFloat(temp1.pop());
+                var b = parseFloat(temp1.pop());
+                console.log(a);
+                console.log(b);
+                switch (c[i]) {
+                    case '+':
+                        temp1.push(a + b);
+                        console.log(temp1);
+                        break;
+                    case '-':
+                        temp1.push(b - a);
+                        console.log(temp1);
+                        break;
+                    case '*':
+                        temp1.push(a * b);
+                        console.log(temp1);
+                        break;
+                    case '/':
+                        temp1.push(b / a);
+                        console.log(temp1);
+                        break;
+                }
+            }
+        }
+        console.log(temp1);
+        a = [];
+        document.getElementById("jieguo").value = temp1[0];
+    }
+</script>
+
+</html>
