@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        *{margin:0;padding:0;}
+        body{
+            overflow: hidden;
+            background-color: #000;
+        }
+        ul{list-style-type: none;}
+        .wrap{
+            perspective: 800px;
+            width: 1120px;
+            height: 630px;
+            margin:50px auto;
+        }
+        .con{
+            position:relative;
+            width: 100%;
+            height: 100%;
+        }
+        .con > li{
+            transform-style: preserve-3d;
+        }
+        .wrap > button{
+            position: absolute;
+            z-index:1;
+            width: 30px;
+            height: 50px;
+            top:50%;
+            background-color: rgba(250,250,250,.5);
+            border:none;
+            font-size: 25px;
+            color:#000;
+            cursor: pointer;
+            transform: translateY(-50%);
+            outline:none;
+        }
+        .left{
+            left:0;
+        }
+        .right{
+            right:0;
+        }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <button class="left">&lt;</button>
+        <ul class="con"></ul>
+        <button class="right">&gt;</button>
+    </div>
+    <script src="js/animation.js"></script>
+</body>
+</html>

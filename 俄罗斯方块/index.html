@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>俄罗斯方块</title>
+		<style type="text/css">
+			body {
+				/*box-sizing: border-box;*/
+				margin: 0;
+				padding: 0;
+				background: url('img/bg.png') repeat;
+			}
+			.wrap {
+				position: absolute;
+				left: 50%;
+				top: 49px;
+				width: 385px;
+				height: 547px;
+				margin-left: -193px;
+				/*box-shadow: 0px 0px 5px 5px rgba(255,125,0, 0.6);*/
+			}
+			.wrap div {
+				position: absolute;
+			}
+			.wrap .now {
+				left: 0;
+				top: 0;
+				width: 261px;
+				height: 547px;
+				background-color: rgba(255,255,255, 0.5);
+				box-shadow: 0px 0px 5px 5px rgba(0,0,0, 0.6);
+			}
+			.wrap .next {
+				right: 0;
+				top: 0;
+				width: 105px;
+				height: 105px;
+				background-color: rgba(255,255,255, 0.5);
+				box-shadow: 0px 0px 5px 5px rgba(0,0,0, 0.6);
+			}
+			.wrap .score,
+			.wrap .lines,
+			.wrap .level,
+			.wrap .pause,
+			.wrap .refresh {
+				left: 280px;
+				top: 150px;
+				width: 99px;
+				height: 40px;
+				line-height: 40px;
+				padding-left: 6px;
+				color: #F0907A;
+				/*font-weight: bold;*/
+				border: 0 none;
+				border-radius: 5px;
+				background-color: rgba(0,0,0, 0.6);
+			}
+			.wrap .lines {
+				top: 200px;
+				color: #4DAEDD;
+			}
+			.wrap .level {
+				top: 250px;
+				color: #FF0033;
+			}
+			.wrap .pause,
+			.wrap .refresh {
+				top: 350px;
+				width: 105px;
+				padding-left: 0px;
+				color: #fff;
+				text-align: center;
+				cursor: pointer;
+				z-index: 2;
+			}
+			.wrap .pause:hover,
+			.wrap .refresh:hover {
+				background-color: rgba(0,0,0, 0.8);
+			}
+			.wrap .refresh {
+				top: 450px;
+			}
+			.wrap .tips {
+				display: none;
+				left: 0px;
+				top: 150px;
+				width: 261px;
+				height: 80px;
+				line-height: 80px;
+				color: #fff;
+				font-size: 42px;
+				font-weight: bolder;
+				text-align: center;
+				text-shadow: 0px 0px 5px #0F0;
+				z-index: 2;
+			}
+			.wrap_prompt {
+				display: none;
+				position: fixed;
+				left: 0;
+				top: 0;
+				width: 100%;
+				height: 100%;
+				background: rgba(0, 0, 0, 0.6);
+				z-index: 5;
+			}
+			.wrap_prompt .prompt {
+				position: absolute;
+				left: 50%;
+				top: 220px;
+				width: 221px;
+				height: 137px;
+				margin-left: -172px;
+				border-radius: 20px;
+				background-color: rgba(255, 255, 255, 0.8);
+				z-index: 6;
+			}
+			.wrap_prompt .prompt div {
+				width: 51px;
+				height: 51px;
+				line-height: 51px;
+				margin-left: 85px;
+				margin-top: 20px;
+				color: #fff;
+				font-size: 30px;
+				text-align: center;
+				border: 2px solid #fff;
+				border-radius: 100%;
+			}
+			.wrap_prompt .prompt .failed,
+			.wrap_prompt .prompt .restart {
+				display: block;
+				color: #f00;
+				line-height: 40px;
+				text-align: center;
+			}
+			.wrap_prompt .prompt .restart {
+				width: 121px;
+				margin-left: 50px;
+				color: #646464;
+				background: yellow;
+				border-radius: 50px;
+				cursor: pointer;
+			}
+			#box {
+				position: relative;
+				width: 385px;
+				height: 547px;
+				margin: 50px auto;
+			}
+			#box div {
+				position: absolute;
+				width: 25px;
+				height: 25px;
+				/*border: 1px solid #000;*/
+				transform: rotate(0);
+				transition: 0.25s;
+			}
+			#box .clDiv{
+				transition: 1s !important;
+				transform: rotate(0deg) translateX(0px) translateY(0px);
+				width: 12.5px !important;
+				height: 12.5px !important;
+				border: none !important;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="wrap">
+			<div class="tips">Good!</div>
+			<div class="now"></div>
+			<div class="next"></div>
+			<div class="score">SCORE: <span>0</span></div>
+			<div class="lines">LINES: <span>0</span></div>
+			<div class="level">LEVEL: <span>0</span></div>
+			<div class="pause">开始</div>
+			<div class="refresh">重新开始</div>
+		</div>
+		<div class="wrap_prompt">
+			<div class="prompt">
+				<div>×</div>
+				<span class="failed">游戏失败</span>
+				<span class="restart">重新开始</span>
+			</div>
+		</div>
+		
+		<script type="text/javascript">
+			var oWrap = document.body.querySelector('.wrap');
+			var oTips = document.body.querySelector('.wrap .tips');
+			var oScore = document.body.querySelector('.wrap .score span');
+			var oLines = document.body.querySelector('.wrap .lines span');
+			var oLevel = document.body.querySelector('.wrap .level span');
+			var oBtn = document.body.querySelector('.wrap .pause');
+			var oReset = document.body.querySelector('.wrap .refresh');
+			var oPrompt = document.body.querySelector('.wrap_prompt');
+			var oRestart = document.body.querySelector('.wrap_prompt .restart');
+			
+			var cloneDivs = document.getElementsByClassName("clDiv");
+			
+			var tetris = {
+				// 父容器
+				box: null,//document.getElementById('box'),
+				// 游戏状态，0未开始，1运行，2终止
+				status: 0,
+				quick: false,
+				// 游戏分数
+				line: 0,
+				level: 0,
+				score: 0,
+				// 时间间隔、定时器
+				step: 500,
+				timer: null,
+				// 游戏面板，数组 对应 div
+				board: null,
+				boardDiv: null,
+				// 当前方块
+				nowBlock: null,
+				// 下一方块
+				nextBlock: null,
+				// 初始化
+				init: function() {
+					this.createBox();
+					this.nowBlock = this.createBlock();
+					this.nextBlock = this.createBlock();
+					// 先显示一次
+					this.drawBlock();
+					this.drawNextBlock();
+					
+					// this.begin();
+				},
+				// 自动开始
+				begin: function() {
+					// 自动下行
+					clearInterval(this.timer);
+					this.timer = setInterval(function() {
+						if(tetris.status==1) tetris.moveDown();
+					}, this.step);
+				},
+				// 暂停、开始
+				pause: function() {
+					if(tetris.status == 0) {
+						oBtn.innerHTML = '暂停';
+						tetris.status = 1;
+						tetris.begin();
+						return true;
+					}
+					oBtn.innerHTML = '继续';
+					tetris.status = 0;
+					clearInterval(tetris.timer);
+				},
+				// 重新开始
+				reStart: function() {
+					for (var i = 0; i < 21; i++) {
+						for (var j = 0; j < 10; j++) {
+							tetris.board[i][j] = 0;
+							tetris.boardDiv[i*10 + j].style.background = '';
+						}
+					}
+					tetris.eraseNextBlock();
+					tetris.nowBlock = tetris.createBlock();
+					tetris.nextBlock = tetris.createBlock();
+					tetris.drawBlock();
+					tetris.drawNextBlock();
+					
+					oPrompt.style.display = 'none';
+					oBtn.innerHTML = '暂停';
+					tetris.status = 1;
+					tetris.begin();
+				},
+				// 创建容器
+				createBox: function() {
+					var str = '';
+					// 生成父容器
+					this.box = document.createElement('div');
+					this.box.id = 'box';
+					// 生成10*21的游戏矩阵
+					this.board = new Array(21);
+					for (var i = 0; i < 21; i++) {
+						this.board[i] = new Array(10);
+						for (var j = 0; j < 10; j++) {
+							this.board[i][j] = 0;
+							str += '<div style="left:' + j*26 + 'px;top:' + i*26 + 'px"></div>';
+						}
+					}
+					// 生成4*4的提示矩阵
+					for (var i = 0; i < 4; i++) {
+						for (var j = 0; j < 4; j++) {
+							str += '<div style="left:' + (280+j*26) + 'px;top:' + i*26 + 'px"></div>';
+						}
+					}
+					
+					this.box.innerHTML = str;
+					document.body.appendChild(this.box);
+					this.boardDiv = document.querySelectorAll('#box > div');
+				},
+				// 创建方块
+				createBlock: function() {
+					var block = new Array(4);
+					var num = Math.floor(Math.random()*7);
+					switch(num) {
+						case 0:{
+		                    block[0] = {x:-2, y:4};//**
+		                    block[1] = {x:-1, y:4};//**
+		                    block[2] = {x:-2, y:5};
+		                    block[3] = {x:-1, y:5};
+		                    break;
+		                }
+		                case 1:{
+		                    block[0] = {x:-1, y:3};//****
+		                    block[1] = {x:-1, y:4};
+		                    block[2] = {x:-1, y:5};
+		                    block[3] = {x:-1, y:6};
+		                    break;
+		                }
+		                case 2:{
+		                    block[0] = {x:-3, y:5};// *
+		                    block[1] = {x:-2, y:4};//**
+		                    block[2] = {x:-2, y:5};//*
+		                    block[3] = {x:-1, y:4};
+		                    break;
+		                }
+		                case 3:{
+		                    block[0] = {x:-3, y:4};//*
+		                    block[1] = {x:-2, y:4};//**
+		                    block[2] = {x:-2, y:5};// *
+		                    block[3] = {x:-1, y:5};
+		                    break;
+		                }
+		                case 4:{
+		                    block[0] = {x:-2, y:4};//*
+		                    block[1] = {x:-1, y:4};//***
+		                    block[2] = {x:-1, y:5};
+		                    block[3] = {x:-1, y:6};
+		                    break;
+		                }
+		                case 5:{
+		                    block[0] = {x:-3, y:4};//*
+		                    block[1] = {x:-2, y:4};//*
+		                    block[2] = {x:-1, y:4};//**
+		                    block[3] = {x:-1, y:5};
+		                    break;
+		                }
+		                case 6:{
+		                    block[0] = {x:-2, y:5};// *
+		                    block[1] = {x:-1, y:4};//***
+		                    block[2] = {x:-1, y:5};
+		                    block[3] = {x:-1, y:6};
+		                    break;
+		                }
+					}
+					return block;
+				},
+				// 绘制方块
+				drawBlock: function() {
+					for (var i = 0; i < 4; i++) {
+						if(this.nowBlock[i].x < 0) continue;
+						this.board[this.nowBlock[i].x][this.nowBlock[i].y] = 1;
+						this.boardDiv[this.nowBlock[i].x*10+this.nowBlock[i].y].style.background = 'red';
+					}
+				},
+				// 清除方块
+				eraseBlock: function() {
+					for (var i = 0; i < 4; i++) {
+						if(this.nowBlock[i].x < 0) continue;
+						this.board[this.nowBlock[i].x][this.nowBlock[i].y] = 0;
+						this.boardDiv[this.nowBlock[i].x*10+this.nowBlock[i].y].style.background = '';
+					}
+				},
+				// 绘制预览方块
+				drawNextBlock: function() {
+					var nextBlock = this.nextBlock;
+					// 位置修正，取得x坐标、y坐标中最小值，所有x加最小，所有y减最小值，即向左上位置移动到0
+					var x = 10,y = 10;
+					for (var i=0; i<4; i++) {
+						if(nextBlock[i].x < x) {
+							x = nextBlock[i].x;
+						}
+						if(nextBlock[i].y < y) {
+							y = nextBlock[i].y;
+						}
+					}
+					for (var i=0; i<4; i++) {
+						this.boardDiv[210 + (nextBlock[i].x-x)*4 + nextBlock[i].y - y].style.background = 'red';
+					}
+				},
+				// 清除预览方块
+				eraseNextBlock: function() {
+					for (var i = 0; i < 16; i++) {
+						this.boardDiv[210 + i].style.background = '';
+					}
+				},
+				// 绘制所有
+				drawBox: function() {
+					for (var i = 0; i < this.board.length; i++) {
+						for (var j = 0; j < this.board[i].length; j++) {
+							if(this.board[i][j]) {
+								this.boardDiv[i*10+j].style.background = 'red';
+							}
+						}
+					}
+				},
+				// 清除所有
+				eraseBox: function() {
+					for (var i = 0; i < 210; i++) {
+						this.boardDiv[i].style.background = '';
+					}
+				},
+				// 左移
+				// return array
+				// 绘制方块
+				moveLeft: function() {
+					if(this.tryLeft()) {	// 可以左移
+						this.eraseBlock();
+						for(var i=0; i<4; i++){
+							this.nowBlock[i].y = this.nowBlock[i].y - 1;
+						}
+						this.drawBlock();
+					}
+				},
+				// 尝试左移
+				// return boolean(true|false)
+				tryLeft: function() {
+					this.eraseBlock();
+					for (var i = 0; i < 4; i++) {
+						if(this.nowBlock[i].x < 0 && this.nowBlock[i].y > 0) continue;
+						if(this.nowBlock[i].y-1==-1 || this.board[this.nowBlock[i].x][this.nowBlock[i].y-1]) {
+							this.drawBlock();
+							return false;
+						}
+					}
+					return true;
+				},
+				// 右移
+				// return array
+				// 绘制方块
+				moveRight: function() {
+					if(this.tryRight()) {	// 可以右移
+						this.eraseBlock();
+						for(var i=0; i<4; i++){
+							this.nowBlock[i].y = this.nowBlock[i].y + 1;
+						}
+						this.drawBlock();
+					}
+				},
+				// 尝试右移
+				// return boolean(true|false)
+				tryRight: function() {
+					this.eraseBlock();
+					for (var i = 0; i < 4; i++) {
+						if(this.nowBlock[i].x < 0 && this.nowBlock[i].y+1 < 10) continue;
+						if(this.nowBlock[i].y+1==10 || this.board[this.nowBlock[i].x][this.nowBlock[i].y+1]) {
+							this.drawBlock();
+							return false;
+						}
+					}
+					return true;
+				},
+				// 旋转
+				// return array
+				// 绘制方块
+				moveRotate: function() {
+					if(this.tryRotate()) {
+						this.eraseBlock();
+						var dx = Math.round((this.nowBlock[0].x + this.nowBlock[1].x + this.nowBlock[2].x + this.nowBlock[3].x)/4);
+						var dy = Math.round((this.nowBlock[0].y + this.nowBlock[1].y + this.nowBlock[2].y + this.nowBlock[3].y)/4);
+						for (var i = 0; i < 4; i++) {
+							// dx - dy + this.nowBlock[i].y	//旋转之后的新x坐标
+							// dx + dy - this.nowBlock[i].x	//旋转之后的新y坐标
+							var newX = dx - dy + this.nowBlock[i].y;
+							var newY = dx + dy - this.nowBlock[i].x;
+							this.nowBlock[i].x = newX;
+							this.nowBlock[i].y = newY;
+						}
+						this.drawBlock();
+					}
+				},
+				// 尝试旋转
+				// return boolean(true|false)
+				tryRotate: function() {
+					this.eraseBlock();
+					var dx = Math.round((this.nowBlock[0].x + this.nowBlock[1].x + this.nowBlock[2].x + this.nowBlock[3].x)/4);
+					var dy = Math.round((this.nowBlock[0].y + this.nowBlock[1].y + this.nowBlock[2].y + this.nowBlock[3].y)/4);
+					for (var i = 0; i < 4; i++) {
+						// dx - dy + this.nowBlock[i].y	//旋转之后的新x坐标
+						// dx + dy - this.nowBlock[i].x	//旋转之后的新y坐标
+						var newX = dx - dy + this.nowBlock[i].y;
+						var newY = dx + dy - this.nowBlock[i].x;
+						if(newX < 0 || newY < 0 || newY > 9 || this.board[newX][newY]) {
+							this.drawBlock();
+							return false;
+						}
+					}
+					return true;
+				},
+				// 快速下移
+				quickDown: function() {
+					if(tetris.quick) return;
+					var timer = setInterval(function() {
+						if(tetris.tryDown())  {
+							tetris.eraseBlock();
+							for(var i=0; i<4; i++){
+								tetris.nowBlock[i].x = tetris.nowBlock[i].x + 1;
+							}
+							tetris.drawBlock();
+						}else {
+							clearInterval(timer);
+						}
+					}, 10);
+					tetris.quick = true;
+				},
+				// 下移
+				// return array
+				// 绘制方块
+				moveDown: function() {
+					if(this.tryDown()) {	// 可以下移
+						this.eraseBlock();
+						for(var i=0; i<4; i++){
+							this.nowBlock[i].x = this.nowBlock[i].x + 1;
+						}
+						this.drawBlock();
+					}else {	// 不能下移，尝试消行，尝试消行完毕，产生新块
+						if(this.status != 1) return;
+						this.tryDelLine();
+						this.shakeScreen();
+						
+						this.nowBlock = this.nextBlock;
+						this.nextBlock = this.createBlock();
+						// 先显示一次（删除旧的，显示新的）
+						this.eraseBlock();
+						this.drawBlock();
+						this.eraseNextBlock();
+						this.drawNextBlock();
+					}
+				},
+				// 尝试下移
+				// return boolean(true|false)
+				tryDown: function() {
+					this.eraseBlock();
+					for (var i = 0; i < 4; i++) {
+						if(this.nowBlock[i].x < 0) continue;
+						if(this.nowBlock[i].x+1==21 || this.board[this.nowBlock[i].x+1][this.nowBlock[i].y]) {
+							this.drawBlock();
+							for (var j = 0; j < 4; j++) {
+								if(this.nowBlock[j].x == 0) {
+									oPrompt.style.display = 'block';
+									this.status = 2;
+									return false;
+								}
+							}
+							return false;
+						}
+					}
+					return true;
+				},
+				// 尝试消行
+				// 消行成功得分，所有上方的下移（删除当前行），添加空行（数组unshift一个空值）
+				tryDelLine: function() {
+					var line = 0;
+					var num = 0;
+					for (var i = 0; i < this.board.length; i++) {
+						for (var j = 0; j < this.board[i].length; j++) {
+							if(this.board[i][j]) {
+								num++;
+							}
+						}
+						if(num == 10) {
+							line++;
+							this.bombBlock(i);
+							this.board.splice(i, 1);
+							this.addNewLine();
+							/*this.eraseBox();
+							this.drawBox();*/
+							setTimeout(function() {
+								tetris.eraseBox();
+								tetris.drawBox();
+							}, 250)
+						}
+						num = 0;
+					}
+					this.tipScore(line);
+				},
+				// 添加空行
+				addNewLine: function() {
+					var newLine = new Array(10);
+					for (var i = 0; i < newLine.length; i++) {
+						newLine[i] = 0;
+					}
+					this.board.unshift(newLine);
+				},
+				// 得分提示
+				tipScore: function(line) {
+					if(line == 0) return;
+					var txt = '';
+					var num = 1;
+					switch(line) {
+						case 1:this.score += 1;txt='Good!';break;
+						case 2:this.score += 4;txt='Great!';break;
+						case 3:this.score += 6;txt='Wonderful!';break;
+						case 4:this.score += 8;txt='Perfect!';break;
+					}
+					this.line += line;
+					if(Math.floor(this.line/10) > this.level) {
+						this.level++;
+						this.step -= 50;
+						this.begin();
+					}
+					
+					oScore.innerHTML = this.score;
+					oLines.innerHTML = this.line;
+					oLevel.innerHTML = this.level;
+					
+					oTips.style.display = 'block';
+					oTips.innerHTML = txt;
+					var timer = setInterval(function() {
+						num += 0.1;
+						oTips.style.opacity = Math.abs(num - 3);
+						oTips.style.transform = 'scale(' + num + ')';
+						if(num >= 3) {
+							clearInterval(timer);
+							oTips.style.display = 'none';
+						}
+					}, 30);
+				},
+				// 振动屏幕
+				shakeScreen: function() {
+					var px = 10;
+					this.box.style.transform = 'translateY(' + px + 'px)';
+					oWrap.style.transform = 'translateY(' + px + 'px)';
+					setTimeout(function() {
+						this.box.style.transform = '';
+						oWrap.style.transform = '';
+					}, 30);
+				},
+				// 爆裂方块
+				bombBlock: function(i) {
+					for (var j = 0; j < this.board[i].length; j++) {
+						this.boardDiv[i*10 + j].style.background = '';
+						for (var m = 0; m < 2; m++) {
+							for (var n = 0; n < 2; n++) {
+								var cloneDiv = document.createElement("div");
+								cloneDiv.className = "clDiv";
+								cloneDiv.style.top = 12.5*m + "px";
+								cloneDiv.style.left = 12.5*n + "px";
+								cloneDiv.style.background = "red";
+								this.boardDiv[i*10 + j].appendChild(cloneDiv);
+								bomb(cloneDiv, i, j);
+							}
+						}
+					}
+					function bomb(obj, i, j) {
+						setTimeout(function() {
+							obj.style.transform = "rotate(" + (720 + 720 * 2 * (Math.random() - 0.5)) + "deg) translateX(" + 400 * (Math.random() - 0.5) + "px) translateY(" + 400 * (Math.random() - 0.5) + "px)";
+							obj.style.opacity = 0;
+					
+							setTimeout(function() {
+								tetris.boardDiv[i * 10 + j].removeChild(obj);
+							}, 800);
+						}, 16);
+					}
+				},
+				// 游戏彩蛋
+				easterEgg: function() {
+					var i = Math.round(Math.random()*(20 - 10) + 10);
+					var j = Math.floor(Math.random()*10);
+					this.boardDiv[i*10 + j].style.background = '#f0f';
+				},
+				// 方向控制，状态为1（运行）时可操作
+				keyControl: function(e) {
+					if(tetris.status!=1 && e.keyCode!=80) return;
+					switch(e.keyCode) {
+						case 32:
+							tetris.quickDown();
+							break;
+						case 37:
+							tetris.moveLeft();
+							break;
+						case 38:
+							tetris.moveRotate();
+							break;
+						case 39:
+							tetris.moveRight();
+							break;
+						case 40:
+							tetris.moveDown();
+							break;
+						case 80:
+							tetris.pause();
+							break;
+					}
+				}
+			}
+			tetris.init();
+			oBtn.onclick = tetris.pause;
+//			oReset.onclick = oRestart.onclick = tetris.reStart;
+			oReset.onclick = oRestart.onclick = function() {
+				window.location.reload();
+			}
+			document.onkeydown = tetris.keyControl;
+			document.onkeyup = function(e) {
+				if(e.keyCode == 32) tetris.quick = false;
+			}
+		</script>
+		
+	</body>
+</html>

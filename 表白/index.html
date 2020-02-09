@@ -1,0 +1,88 @@
+﻿<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8"/>
+		<meta name="keywords" content=""/>
+		<meta name="description" content=""/>
+		<title>520表白</title>
+		<style style="text/css">
+			*{margin:0;padding:0;}
+			body{background:url("images/1.jpg");background-size:cover;}
+			/*start top*/
+			.top{width:400px;height:100px;margin:60px auto;font-size:30px;font-family:"华文行楷";color:pink;
+			<!--background:-webkit-linear-gradient(45deg,#ff0000,#ffcc00,#ffff99,#33ccff,#00ff33,#6600ff,#333399);
+			-webkit-background-clip:text;-->}
+			/*end top*/
+			/*start box*/
+			.box{width:310px;height:310px;margin:auto;perspective:800px;/*景深*/}
+			.box .pic{position:relative;transform-style:preserve-3d;/*3d环境*/ animation:play 10s linear infinite;/*动画名称 执行时间 匀速 无限执行*/}
+			.box ul li{list-style:none;position:absolute;top:0;left:0;}
+			/*start box*/
+			/*定义一个关键帧*/
+			@keyframes play{
+				from{transform:rotateY(0deg);}
+				to{transform:rotateY(360deg);}
+			}
+			/*start text*/
+			#text{width:500px;height:200px;color:pink;margin:auto;font-size:24px;font-family:"方正喵呜体";}
+			/*end text*/
+		</style>
+	</head>
+	<body>
+		<!--start top-->
+		<div class="top">
+			<marquee behavior="alternate">我不喜欢这世界 &nbsp;我只喜欢你</marquee>
+		</div>
+		<!--end top-->
+		<!--start box-->
+		<div class="box">
+			<div class="pic">
+				<ul>
+					<li><img src="images/1.png" width="" height="" alt=""/></li>
+					<li><img src="images/2.png" width="" height="" alt=""/></li>
+					<li><img src="images/3.png" width="" height="" alt=""/></li>
+					<li><img src="images/4.png" width="" height="" alt=""/></li>
+					<li><img src="images/5.png" width="" height="" alt=""/></li>
+					<li><img src="images/6.png" width="" height="" alt=""/></li>
+				</ul>
+			</div>
+		</div>
+		<!--end box-->
+		<!--start text-->
+		<div id="text"></div>
+		<!--end text-->
+		<embed src="music.mp3" hidden="true" loop="true"/>
+		
+		<script src="js/jquery.min.js"></script>
+		<!--雪花-->
+		<script src="js/snow.js"></script>
+		<script>
+			$(".pic ul li").each(function(i){//遍历
+				var deg=360/$(".pic ul li").size();//size个数
+				//当前的li对象 添加css样式
+				$(this).css({"transform":"rotateY("+deg*i+"deg) translateZ(216px)"});
+				
+				$.fn.snow({
+					minSize:10,
+					maxSize:15,
+					newOn:500,
+					flakeColor:"#ffffff"
+				});
+			});
+			
+			var i=0;
+			var str="以前不懂事，随随便便就喜欢上了你，现在成熟了，经过深思熟虑，还是喜欢你。所谓岁月静好，好不过能有个人，知你冷暖，懂你悲欢，懂你的人，才配得上你的余生，愿我们彼此默契，走尽千帆，仍能携手相伴！";
+			
+			window.onload=function typing(){
+				//获取div
+				var mydiv=document.getElementById("text");
+				mydiv.innerHTML+=str.charAt(i);
+				i++;
+				var id=setTimeout(typing,100);
+				if(i==str.length){
+					clearTimeout(id);
+				}
+			}
+		</script>
+	</body>
+</html>

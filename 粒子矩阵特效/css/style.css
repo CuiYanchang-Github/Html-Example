@@ -1,0 +1,15 @@
+/**
+  Scroll to zoom, or use options
+  
+  Read description for notes on possible
+  issues.
+*/
+body, html {
+  margin: 0;
+  padding: 0;
+}
+
+body canvas {
+  display: block;
+  background: #000000;
+}

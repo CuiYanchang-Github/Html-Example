@@ -1,0 +1,200 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>时钟</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="js/test.js"></script>
+    <script src="js/common.js"></script>
+    <script src="js/config.js"></script>
+</head>
+
+<style>
+
+	*{
+		margin: 0;
+		padding: 0;
+		color: rgb(187, 187, 187);
+
+	}
+
+	body{
+		/* background: url("../images/bg.jpg") no-repeat;
+		background-size: 100% 100%; */
+		background-attachment: fixed;
+		font-size: 12px;
+		font-weight: bold;
+		overflow: hidden;
+		width: 1000px;
+		height: 900px;
+		font-family: "微软雅黑";
+		background-color: black;
+	}
+
+	audio{
+		position: absolute;
+		right: 0;
+		opacity: 0.1;
+		transition: all 1s;
+		
+	}
+
+	audio:hover{
+		opacity: 1;
+	}
+
+	.current{
+		color: #D1A3F7;
+	}
+
+
+	video{
+		z-index: -1;
+		/* object-fit: fill; */
+		position: fixed;
+		/* right: 0px;
+		bottom: 0px; */
+		min-width: 100%;
+		min-height: 100%;
+		/* height: auto;
+		width: auto; */
+	}
+
+
+	.main-content{
+		position: absolute; 
+		top:50%;
+		left: 50%;
+	}
+
+
+	.main-content .year{
+		position: relative;
+		top: -13px;
+		left: -38px;
+		text-align: center
+	}
+
+	.main-content .year span{
+		position: absolute;
+		width: 80px;
+	}
+
+
+
+	.main-content .month{
+		position: relative;
+		top: -13px;
+		left: 40px;
+	}
+
+	.month span{
+		position: absolute;
+		width: 60px;
+		
+	}
+
+
+
+
+	.main-content .day{
+		position: relative;
+		top: -13px;
+		left: 85px;
+	}
+
+	.day span{
+		position: absolute;
+		width: 65px;
+		
+	}
+
+
+
+
+	.main-content .week{
+		position: relative;
+		top: -13px;
+		left: 145px;
+	}
+	.week span{
+		position: absolute;
+		width: 65px;
+		
+	}
+
+
+	.main-content .shichen{
+		position: relative;
+		top: -13px;
+		left: 200px;
+	}
+	.shichen span{
+		position: absolute;
+		width: 125px;
+		
+	}
+
+
+	.main-content .hour{
+		position: relative;
+		top: -13px;
+		left: 240px;
+	}
+	.hour span{
+		position: absolute;
+		width: 60px;
+		
+	}
+
+
+	.main-content .minute{
+		position: relative;
+		top: -13px;
+		left: 300px;
+	}
+	.minute span{
+		position: absolute;
+		width: 60px;
+		
+	}
+
+
+	.main-content .second{
+		position: relative;
+		top: -13px;
+		left: 370px;
+	}
+	.second span{
+		position: absolute;
+		width: 60px;
+		
+	}
+
+
+
+</style>
+
+
+
+<body>
+
+
+    
+    <div class="main-content">
+        <div class="year"></div> 
+        <div class="month"></div>
+        <div class="day"></div>
+        <div class="week"></div>
+        <div class="shichen"></div>
+        <div class="hour"></div>
+        <div class="minute"></div>
+        <div class="second"></div>
+    </div>
+
+
+
+</body>
+</html>

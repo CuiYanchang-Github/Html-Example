@@ -1,0 +1,1 @@
+*{margin:0;padding:0}html,body{width:100%;height:100%;background-color:black;overflow:hidden}#clock{position:relative;width:100%;height:100%;background:black}.label{display:inline-block;color:#4d4d4d;text-align:center;padding:0 5px;font-size:16px;transition:left 1s,top 1s;transform-origin:0% 0%}

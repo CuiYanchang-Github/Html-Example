@@ -1,0 +1,239 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>Wanna tell her - interactive DHTML</title>
+<meta http-equiv="imagetoolbar" content="no">
+<style type="text/css">
+html {
+overflow: hidden;
+}
+body {
+position: absolute;
+margin: 0px;
+padding: 0px;
+background: #fff;
+width: 100%;
+height: 100%;
+}
+#screen {
+position: absolute;
+left: 10%;
+top: 10%;
+width: 80%;
+height: 80%;
+background: #fff;
+}
+#screen img {
+position: absolute;
+cursor: pointer;
+width: 0px;
+height: 0px;
+-ms-interpolation-mode:nearest-neighbor;
+}
+#bankImages {
+visibility: hidden;
+}
+#FPS {
+position: absolute;
+right: 5px;
+bottom: 5px;
+font-size: 10px;
+color: #666;
+font-family: verdana;
+}
+
+</style>
+
+<script type="text/javascript">
+/* ==== Easing function ==== */
+var Library = {};
+Library.ease = function () {
+this.target = 0;
+this.position = 0;
+this.move = function (target, speed) {
+this.position += (target - this.position) * speed;
+}
+}
+
+var tv = {
+/* ==== variables ==== */
+O : [],
+fps : 0,
+screen : {},
+angle : {
+x : new Library.ease(),
+y : new Library.ease()
+},
+camera : {
+x : new Library.ease(),
+y : new Library.ease()
+},
+create3DHTML : function (i, x, y, z, sw, sh) {
+/* ==== create HTML image element ==== */
+var o = document.createElement('img');
+o.src = i.src;
+tv.screen.obj.appendChild(o);
+/* ==== 3D coordinates ==== */
+o.point3D = {
+x : x,
+y : y,
+z : new Library.ease(),
+sw : sw,
+sh : sh,
+w : i.width,
+h : i.height
+};
+o.point3D.z.target = z;
+/* ==== push object ==== */
+o.point2D = {};
+tv.O.push(o);
+
+/* ==== on mouse over event ==== */
+o.onmouseover = function () {
+if (this != tv.o) {
+this.point3D.z.target = tv.mouseZ;
+tv.camera.x.target = this.point3D.x;
+tv.camera.y.target = this.point3D.y;
+if (tv.o) tv.o.point3D.z.target = 0;
+tv.o = this;
+}
+return false;
+}
+
+/* ==== on mousedown event ==== */
+o.onmousedown = function () {
+if (this == tv.o) {
+if (this.point3D.z.target == tv.mouseZ) this.point3D.z.target = 0;
+else {
+tv.o = false;
+this.onmouseover();
+}
+}
+}
+
+/* ==== main 3D function ==== */
+o.animate = function () {
+/* ==== 3D coordinates ==== */
+var x = this.point3D.x - tv.camera.x.position;
+var y = this.point3D.y - tv.camera.y.position;
+this.point3D.z.move(this.point3D.z.target, this.point3D.z.target ? .15 : .08);
+/* ==== rotations ==== */
+var xy = tv.angle.cx * y - tv.angle.sx * this.point3D.z.position;
+var xz = tv.angle.sx * y + tv.angle.cx * this.point3D.z.position;
+var yz = tv.angle.cy * xz - tv.angle.sy * x;
+var yx = tv.angle.sy * xz + tv.angle.cy * x;
+/* ==== 2D transform ==== */
+var scale = tv.camera.focalLength / (tv.camera.focalLength + yz);
+x = yx * scale;
+y = xy * scale;
+var w = Math.round(Math.max(0, this.point3D.w * scale * this.point3D.sw));
+var h = Math.round(Math.max(0, this.point3D.h * scale * this.point3D.sh));
+/* ==== HTML rendering ==== */
+var o = this.style;
+o.left = Math.round(x + tv.screen.w - w * .5) + 'px';
+o.top = Math.round(y + tv.screen.h - h * .5) + 'px';
+o.width = w + 'px';
+o.height = h + 'px';
+o.zIndex = 10000 + Math.round(scale * 1000);
+}
+},
+
+/* ==== init script ==== */
+init : function (structure, FL, mouseZ, rx, ry) {
+this.screen.obj = document.getElementById('screen');
+this.screen.obj.onselectstart = function () { return false; }
+this.screen.obj.ondrag = function () { return false; }
+this.mouseZ = mouseZ;
+this.camera.focalLength = FL;
+this.angle.rx = rx;
+this.angle.ry = ry;
+/* ==== create objects ==== */
+var i = 0, o;
+while( o = structure[i++] )
+this.create3DHTML(o.img, o.x, o.y, o.z, o.sw, o.sh);
+/* ==== start script ==== */
+this.resize();
+mouse.y = this.screen.y + this.screen.h;
+mouse.x = this.screen.x + this.screen.w;
+/* ==== loop ==== */
+setInterval(tv.run, 16);
+setInterval(tv.dFPS, 1000);
+},
+
+/* ==== resize window ==== */
+resize : function () {
+var o = tv.screen.obj;
+if (o) {
+tv.screen.w = o.offsetWidth / 2;
+tv.screen.h = o.offsetHeight / 2;
+for (tv.screen.x = 0, tv.screen.y = 0; o != null; o = o.offsetParent) {
+tv.screen.x += o.offsetLeft;
+tv.screen.y += o.offsetTop;
+}
+}
+},
+
+/* ==== main loop ==== */
+run : function () {
+tv.fps++;
+/* ==== motion ease ==== */
+tv.angle.x.move(-(mouse.y - tv.screen.h - tv.screen.y) * tv.angle.rx, .1);
+tv.angle.y.move( (mouse.x - tv.screen.w - tv.screen.x) * tv.angle.ry, .1);
+tv.camera.x.move(tv.camera.x.target, .025);
+tv.camera.y.move(tv.camera.y.target, .025);
+/* ==== angles sin and cos ==== */
+tv.angle.cx = Math.cos(tv.angle.x.position);
+tv.angle.sx = Math.sin(tv.angle.x.position);
+tv.angle.cy = Math.cos(tv.angle.y.position);
+tv.angle.sy = Math.sin(tv.angle.y.position);
+/* ==== loop through images ==== */
+var i = 0, o;
+while( o = tv.O[i++] ) o.animate();
+},
+
+/* ==== trace frames per seconds ==== */
+dFPS : function () {
+document.getElementById('FPS').innerHTML = tv.fps + ' FPS';
+tv.fps = 0;
+}
+}
+
+/* ==== global mouse position ==== */
+var mouse = {
+x : 0,
+y : 0
+}
+document.onmousemove = function(e) {
+if (window.event) e = window.event;
+mouse.x = e.clientX;
+mouse.y = e.clientY;
+return false;
+}
+
+/* ==== starting script ==== */
+onload = function() {
+onresize = tv.resize;
+/* ==== build grid ==== */
+var img = document.getElementById('bankImages').getElementsByTagName('img');
+var structure = [];
+for (var i = -300; i <= 300; i += 120)
+for (var j = -300; j <= 300; j += 120)
+structure.push({ img:img[0], x:i, y:j, z:0, sw:.5, sh:.5 });
+/* ==== let's go ==== */
+tv.init(structure, 350, -200, .005, .0025);
+}
+
+</script>
+</head>
+
+<body>
+
+<div id="screen"></div>
+
+<div id="bankImages">
+<img alt="" src="1.png">
+</div>
+<div id="FPS"></div>
+
+</body>
+</html>

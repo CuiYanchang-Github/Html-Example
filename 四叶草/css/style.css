@@ -1,0 +1,21 @@
+html, body {
+  margin:0px;
+  padding:0px;
+  background-color:#020;
+  font-family:sans-serif;
+  font-size:16px;
+  overflow:hidden;
+}
+
+#logo { 
+	position: absolute;
+  right:0px;
+  bottom:0px;
+}
+
+p {
+  color:#020;
+}
+canvas {
+  background-color:#020;
+}

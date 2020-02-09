@@ -1,0 +1,697 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <style>
+    * {
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        background: #cccccc;
+        height: 100%;
+    }
+
+    #wrap {
+        position: relative;
+        width: 540px;
+        height: 960px;
+        margin: 20px auto;
+        border: 1px solid transparent;
+        background: url('img/bg.jpg') center/cover;
+    }
+
+    #wrap h1 {
+        color: azure;
+        text-align: center;
+        padding: 30px;
+    }
+
+    .option {
+        width: 200px;
+        height: 110px;
+        line-height: 110px;
+        font-size: 30px;
+        color: steelblue;
+        background: wheat;
+        font-weight: bold;
+        margin: 20px auto;
+        text-align: center;
+        cursor: pointer;
+        background: url(./img/fire-row.png) no-repeat center -10px/ 90% auto ; 
+    }
+
+    .footer {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        font-size: 20px;
+        color: #fff;
+    }
+    /* enemy 敌机定位 */
+
+    .enemy {
+        position: absolute;
+    }
+    /* 血条 */
+
+    .blood {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: -6px;
+        margin: 0 auto;
+        width: 70%;
+        height: 2px;
+        border-radius: 2px;
+        /* border: 1px solid red; */
+    }
+
+    .blood p {
+        height: 100%;
+        /* background: red; */
+    }
+    /* 小飞机 */
+
+    .small {
+        width: 50px;
+    }
+
+    img:not(.boom) {
+        width: 100%;
+        height: 100%;
+    }
+    /* 大飞机 */
+
+    .big {
+        width: 60px;
+    }
+
+    .big .blood {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: -10px;
+        margin: 0 auto;
+        height: 4px;
+        border-radius: unset;
+    }
+
+    .blood p {
+        height: 100%;
+        /* background: red; */
+    }
+    /* 我军 */
+
+    .plane {
+        position: absolute;
+    }
+	.plane img{
+		transform: rotate(270deg);
+	}
+    .plane.small {
+        width: 80px;
+    }
+
+    .plane.big {
+        width: 100px;
+    }
+
+    .biu {
+        position: absolute;
+    }
+
+    .biu.strong1 {
+        width: 26px;
+        height: 26px;
+    }
+
+    .biu.strong2 {
+        width: 20px;
+        height: 20px;
+    }
+    /* 爆炸图片 */
+
+    img.boom {
+        position: absolute;
+        animation: opa 1s;
+    }
+
+    @keyframes opa {
+        0% {
+            opacity: 1;
+        }
+        25% {
+            opacity: 0.5;
+        }
+        50% {
+            opacity: 1;
+        }
+        100% {
+            opacity: 0;
+        }
+    }
+    /* prize */
+
+    .prize {
+        position: absolute;
+        width: 50px;
+        height: 50px;
+        font-size: 50px;
+        text-align: center;
+        line-height: 50px;
+        border: 1px dashed red;
+        color: red;
+        font-weight: bold;
+        animation: prize 1s infinite;
+    }
+
+    @keyframes prize {
+        0% {
+            transform: scale(1);
+        }
+        50% {
+            transform: scale(1.2);
+        }
+
+        100% {
+            transform: scale(1);
+        }
+    }
+    /* 得分板 */
+
+    .score {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 70px;
+        height: 30px;
+        color: #fff;
+        font-size: 20px;
+    }
+    /* 记录得分 */
+
+    .record {
+        width: 60%;
+        height: 100px;
+        margin: 100px auto;
+        background: #000;
+        padding: 10px;
+        border: 4px double #fff;
+        color: #fff;
+    }
+
+    .record p {
+        height: 50px;
+        font-size: 40px;
+        font-weight: bold;
+        text-align: center;
+        color: skyblue;
+    }
+    /* 再来一次 */
+
+    .btn {
+        position: absolute;
+        bottom: 50px;
+        right: 0;
+        left: 0;
+        margin: auto;
+        width: 150px;
+        height: 40px;
+        text-align: center;
+        line-height: 40px;
+        color: #fff;
+        font-size: 20px;
+        font-weight: bold;
+        border-radius: 10px;
+        background: #000;
+        cursor: pointer;
+    }
+    </style>
+</head>
+
+<body onselectstart="return false">
+    <div id="wrap">
+    </div>
+    <script>
+    (function() {
+
+        var wrap = document.getElementById("wrap"),
+            speedEnemy = [400, 350, 300, 200],
+            wrapWidth = wrap.clientWidth,
+            wrapHeight = wrap.clientHeight,
+            enePlane = document.getElementsByClassName('enemy'),
+            plane = document.getElementsByClassName("plane"),
+            prize = document.getElementsByClassName('prize'),
+            defaultEne = {
+                big: {
+                    width: 260,
+                    height: 200,
+                    strong: 5 
+                },
+                small: {
+                    width: 108,
+                    height: 80,
+                    strong: 1 
+                }
+            },
+            defaultPlane = {
+                big: {
+                    width: 97,
+                    height: 97,
+                    filename: 'plane_1.gif'
+                },
+                small: {
+                    width: 122,
+                    height: 95,
+                    filename: 'plane_0.gif'
+                }
+            };
+
+
+        init() // 初始化界面
+
+        function init() {
+            var optArr = ['简单模式', '一般模式', '困难模式', '地狱模式'];
+
+
+
+            wrap.innerHTML = "";
+
+            var h1 = document.createElement('h1');
+            h1.innerHTML = '飞机大战进化版';
+            wrap.appendChild(h1)
+
+            for (var i = 0, len = optArr.length; i < len; i++) {
+                var div = document.createElement('div');
+                div.className = 'option';
+                div.innerHTML = optArr[i];
+                div.i = i;
+                div.onclick = function(e) {
+                    startGame(this.i, e)
+                }
+                wrap.appendChild(div)
+            }
+        }
+
+
+        // startGame 开始游戏
+        function startGame(idx, e) {
+            var mod = ['small', 'big', 'small', 'small'];
+            wrap.innerHTML = "";
+            wrap.className = 'bg.jpg';
+        
+            wrap.eneTime = setInterval(function() {
+                enemy(idx, mod[randomArea(0, 3)]) // 
+            }, speedEnemy[idx])
+
+            
+            myPlane(e, idx, 'small')
+
+            
+            wrap.prizeTime = setInterval(function() {
+
+                createPrize(['爱你', '啵啵'][randomArea(0, 1)])
+            }, 5000);
+
+
+            
+            showScore();
+
+            
+            var audio = document.createElement('audio');
+            audio.src = 'img/game_music.mp3';
+            audio.autoplay = true;
+            audio.loop = true;
+            audio.volume = 0.5;
+
+            wrap.appendChild(audio)
+
+        }
+
+
+
+        // 创建敌军函数
+        function enemy(idx, model) {
+            
+
+            var ene = document.createElement('div'),
+                bloodBorder = document.createElement('div'),
+                blood = document.createElement('p'),
+                img = document.createElement('img');
+
+            ene.className = 'enemy ' + model;
+            
+            ene.model = model;
+
+            bloodBorder.className = 'blood';
+
+            img.src = 'img/enemy_' + model + '.gif';
+
+            img.width = defaultEne[model].width;
+            img.height = defaultEne[model].height;
+
+            
+            ene.style.top = 0;
+
+            
+            ene.strong = defaultEne[model].strong;
+
+           
+            ene.speed = randomArea(2, 4);
+
+            //
+            wrap.appendChild(ene).appendChild(bloodBorder).appendChild(blood);
+            ene.appendChild(img)
+
+
+            ene.style.left = randomArea(0, wrapWidth - ene.clientWidth) + "px"
+
+
+
+
+            eneLanding(); // 敌机生成结束 开始下降
+
+
+            function eneLanding() {
+                ene.style.top = ene.offsetTop + ene.speed + "px";
+                if (ene.offsetTop >= wrapHeight - ene.offsetHeight) {
+                    
+                    wrap.removeChild(ene);
+                } else {
+                    
+                    if (plane[0] && isDuang(plane[0], ene)) {
+
+                        boom(ene);
+                        
+                        gg();
+
+                    } else {
+                        plane[0] && requestAnimationFrame(eneLanding)
+                    }
+
+
+                }
+            }
+
+        }
+
+        // 创建我军函数
+        function myPlane(e, idx, model) {
+            
+            var maxTop, maxLeft, minLeft;
+            var plane = document.createElement('div'),
+                img = document.createElement('img');
+
+            img.src = 'img/' + defaultPlane[model].filename;
+            img.width = defaultPlane[model].width;
+            img.height = defaultPlane[model].height;
+
+            plane.className = "plane " + model;
+            
+            plane.strong = 0;
+
+            
+            plane.count = 0;
+
+            plane.model = model;
+
+            wrap.appendChild(plane).appendChild(img);
+
+
+            img.onload = function() {
+                plane.style.top = e.pageY - wrap.offsetTop - plane.clientHeight / 2 + 'px';
+                plane.style.left = e.pageX - wrap.offsetLeft - plane.clientWidth / 2 + 'px';
+
+
+               
+                maxTop = wrap.clientHeight - plane.offsetHeight,
+                    minLeft = -plane.offsetWidth / 2,
+                    maxLeft = wrap.clientWidth + minLeft;
+            }
+
+
+
+            document.onmousemove = function(e) {
+                var top = e.pageY - wrap.offsetTop - plane.offsetHeight / 2,
+                    left = e.pageX - wrap.offsetLeft - plane.offsetWidth / 2;
+
+                top = Math.max(0, top)
+                top = Math.min(maxTop, top)
+                left = Math.max(minLeft, left)
+                left = Math.min(maxLeft, left)
+
+                plane.style.top = top + 'px'
+                plane.style.left = left + 'px';
+
+               
+
+                for (var i = 0, len = prize.length; i < len; i++) {
+                    if (isDuang(plane, prize[i])) {
+                        
+                        if (prize[i].attr === '火') {
+                            
+                            plane.strong++;
+                        } else if (prize[i].attr === '风') {
+                            
+                            plane.count++;
+
+                            if (plane.count > 2) {
+                                alert('知足者常乐');
+                                gg(); 
+                            }
+                        }
+                        
+                        clearTimeout(prize[i].time)
+                        wrap.removeChild(prize[i])
+                    }
+                }
+            };
+
+
+            // 生成子弹
+            var speed = [300, 250, 200, 150][idx], 
+                biuSpd = [4, 5, 6, 7][idx]; 
+
+
+            var audio = document.createElement('audio');
+            audio.loop = true;
+            audio.autoplay = true;
+            wrap.appendChild(audio)
+
+
+
+
+            plane.time = setInterval(function() {
+                
+
+                for (var i = 0; i <= plane.count; i++) {
+                    Biu({
+                        strong: plane.strong,
+                        count: plane.count,
+                        i: i 
+                    })
+
+                    audio.src = plane.count > 0 ? 'img/enemy2_out.mp3' : 'img/bullet.mp3';
+
+                }
+
+
+            }, speed)
+
+            function Biu(obj) {
+                var biu = document.createElement('img');
+                biu.src = 'img/fire.png';
+                biu.className = 'biu strong1';
+                biu.strong = 1 + plane.strong; 
+                biu.count = 1 + plane.count; 
+
+                wrap.appendChild(biu);
+                biu.style.top = plane.offsetTop + 'px';
+
+
+                if (obj.count === 0) {
+                   
+                    biu.style.left = plane.offsetLeft + plane.offsetWidth / 2 - biu.offsetWidth / 2 + "px";
+                } else if (obj.count === 1) {
+                    
+                    biu.style.left = [plane.offsetLeft, plane.offsetLeft + plane.offsetWidth - biu.offsetWidth][obj.i] + 'px';
+                } else if (obj.count === 2) {
+                   
+                    biu.style.left = [plane.offsetLeft, plane.offsetLeft + plane.offsetWidth / 2 - biu.offsetWidth / 2, plane.offsetLeft + plane.offsetWidth - biu.offsetWidth][obj.i] + 'px';
+                }
+                runBiu();
+
+                function runBiu() {
+                    biu.style.top = biu.offsetTop - biuSpd + "px";
+                    if (biu.offsetTop <= 0) {
+                        wrap.removeChild(biu);
+                    } else {
+
+                        
+                        plane.parentNode && (biu.time = requestAnimationFrame(runBiu))
+
+                        for (var i = 0, len = enePlane.length; i < len; i++) {
+
+                            if (enePlane[i] && isDuang(biu, enePlane[i])) {
+
+                                cancelAnimationFrame(biu.time)
+                               
+                                wrap.removeChild(biu);
+                                enePlane[i].strong -= biu.strong;
+                               
+
+                                enePlane[i].children[0].children[0].style.width = enePlane[i].strong / defaultEne[enePlane[i].model].strong * enePlane[i].children[0].clientWidth + "px";
+
+                                if (enePlane[i].strong <= 0) {
+                                    if (enePlane[i].model === 'small') {
+                                        wrap.score++;
+                                    } else if (enePlane[i].model === 'big') {
+                                        wrap.score += 4;
+
+                                    }
+                                    boom(enePlane[i]);
+
+                                    document.getElementsByClassName('score')[0].innerHTML = wrap.score;
+                                }
+
+
+                            }
+                        }
+
+
+
+                    }
+                }
+
+
+            }
+        }
+
+        function boom(obj) {
+            var img = document.createElement('img');
+            img.src = 'img/boom_' + obj.model + '.gif';
+            img.width = obj.clientWidth + 10;
+            img.height = obj.clientHeight + 10;
+            img.className = 'boom';
+            img.style.top = obj.offsetTop + "px";
+            img.style.left = obj.offsetLeft + "px";
+
+
+            wrap.removeChild(obj);
+
+
+            wrap.appendChild(img);
+            
+            img.addEventListener('webkitAnimationEnd', function() {
+                wrap.removeChild(this)
+            })
+
+            var audio = document.createElement('audio');
+            audio.loop = false;
+            audio.autoplay = true;
+            audio.src = obj.className === 'enemy' ? 'img/enemy3_down.mp3' : 'img/game_over.mp3'
+            audio.volume = 0.5;
+
+            audio.addEventListener('ended', function() {
+                wrap.removeChild(this);
+            });
+
+            wrap.appendChild(audio)
+        }
+
+
+        function isDuang(obj1, obj2) { // true 碰撞  false 不碰撞
+            var top1 = obj1.offsetTop,
+                left1 = obj1.offsetLeft,
+                right1 = left1 + obj1.offsetWidth,
+                bottom1 = top1 + obj1.offsetHeight,
+
+                top2 = obj2.offsetTop,
+                left2 = obj2.offsetLeft,
+                right2 = left2 + obj2.offsetWidth,
+                bottom2 = top2 + obj2.offsetHeight;
+
+            return !(top1 > bottom2 || left1 > right2 || bottom1 < top2 || right1 < left2)
+        }
+
+
+        
+        function randomArea(a, b) {
+            return Math.floor(Math.random() * (b + 1 - a) + a);
+        }
+
+        // GG 游戏结束
+        function gg() {
+            // 注销document的move事件
+            document.onmousemove = null;
+            // 关闭生产敌军的定时器
+            clearInterval(wrap.eneTime)
+            // 关闭生成子弹的定时器
+            clearInterval(plane[0].time)
+            // 清除生成奖品的定时器
+            clearInterval(wrap.prizeTime)
+            // 我军的爆炸效果 && 删除我军
+            boom(plane[0])
+            // 统计得分情况
+            setTimeout(ggView, 1000)
+        }
+        //  火 = 增加威力   风 = 增加子弹的条数
+
+        function createPrize(inner) {
+            var div = document.createElement('div');
+            div.innerHTML = inner;
+            div.className = 'prize';
+            
+            div.attr = inner;
+
+            div.style.top = randomArea(0, wrapHeight - 50) + 'px';
+            div.style.left = randomArea(0, wrapWidth - 50) + 'px';
+
+            wrap.appendChild(div);
+            div.time = setTimeout(function() {
+                wrap.removeChild(div)
+            }, 5000)
+        }
+
+
+       
+        function ggView() {
+            // 清屏
+            wrap.innerHTML = "";
+            // 创建游戏结束画面的两个对象
+            
+            var div = document.createElement('div'),
+                div2 = document.createElement('div');
+
+            div.className = 'record';
+            div.innerHTML = "最终得分：<p>" + wrap.score + "</p>"
+            div2.className = "btn";
+            div2.innerHTML = '再来一次';
+            div2.onclick = function() {
+                init();
+            }
+            wrap.appendChild(div)
+            wrap.appendChild(div2)
+
+
+        }
+
+        // showScore  初始化开始几分
+        function showScore() {
+
+            var span = document.createElement('span');
+            span.innerHTML = wrap.score = 0;
+            span.className = 'score';
+            wrap.appendChild(span);
+
+        }
+
+    })()
+    </script>
+</body>
+
+</html>
